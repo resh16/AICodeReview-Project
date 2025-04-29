@@ -1,7 +1,9 @@
-﻿using CodeSubmissionService.Api.IServices;
+﻿using CodeSubmissionService.Api.DTOs;
+using CodeSubmissionService.Api.IServices;
 using CodeSubmissionService.Api.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 
 namespace CodeSubmissionService.Api.Controllers
 {
@@ -9,8 +11,8 @@ namespace CodeSubmissionService.Api.Controllers
     [Route("api/[controller]")]
     public class CodeController : ControllerBase
     {
-        private readonly ICodeService _codeService;
-        public CodeController(ICodeService codeservice)
+        private readonly ICodeAnalysisService _codeService;
+        public CodeController(ICodeAnalysisService codeservice)
         {
             _codeService = codeservice;
         }
@@ -18,13 +20,19 @@ namespace CodeSubmissionService.Api.Controllers
 
         [Authorize]
         [HttpPost("codeSubmit")]
-        public IActionResult SubmitCode([FromBody] CodeSubmissionRequest request)
+        public async Task<IActionResult> SubmitCode([FromBody] CodeRequestDTO request)
         {
-            // Call the service to analyze the code
-            var result = _codeService.AnalyzeCode(request.CodeContent);
 
-            // Return the feedback to the user
+            if (string.IsNullOrWhiteSpace(request.Code))
+                return BadRequest("Code cannot be empty");
+
+            var result = _codeService.AnalyzeCodeAsync(new CodeRequest
+            {
+                Code = request.Code,
+                Language = request.Language
+            });
             return Ok(result);
+            
         }
 
 
