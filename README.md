@@ -49,3 +49,163 @@ Maintain quality and consistency in large projects
 **Deployment** -	Docker (Kubernetes planned)
 
 **DB** -	SQL Server
+
+# Project Structure
+
+AI.CodeReviewer.sln
+
+├── AuthService (Microsoft Identity tables +JWT )
+
+├── CodeSubmissionService (Handles Uploads, Basic feedback, e.g., what the code does, First-level validation/feedback )
+
+├── AIAnalysisService (Advanced insights: logic issues, suggestions, refactoring)
+
+├── ReportService (PDF/HTML report)
+
+├── APIGateway
+
+
+# 🔐 AuthService.API – Authentication & Authorization Service
+This microservice handles user authentication, authorization, and identity management using JWT tokens and ASP.NET Identity.
+
+# ✅ Features Implemented:
+
+- User Registration
+
+- New users can register with email and password.
+
+- Password is securely hashed using ASP.NET Identity.
+
+- User Login
+
+- Users can log in using valid credentials.
+
+- On successful login, a JWT token is generated and returned.
+
+- JWT Token Generation & Validation
+
+- Secure tokens generated with claims like UserId, Email, and roles.
+
+- Token expiry and signing handled via appsettings.json config.
+
+- Role-Based Authorization (not implemented now)
+
+- Supports user roles (e.g., Admin, User).
+
+- Role claims added to JWT.
+
+- Token-based API Protection
+
+- Endpoints protected using [Authorize] attribute.
+
+- Authenticated users only can access protected routes.
+
+- Identity Integration
+
+- Uses IdentityUser and built-in UserManager, SignInManager.
+
+- EF Core used to manage identity tables in the DB.
+
+- Validation & Error Handling
+
+- Custom error messages for invalid login or registration.
+
+- Model validation included for user inputs.
+
+# 🛠️ Tech Stack:
+- ASP.NET Core Web API
+
+- Entity Framework Core
+
+- ASP.NET Core Identity
+
+- JWT Bearer Authentication
+
+- SQL Server (for Identity DB)
+
+ # 🧠 CodeSubmissionService.API – Code Submission & AI Feedback Service
+This microservice allows users to submit code and receive automated analysis and feedback using the Code Llama AI model via Ollama.
+
+## 🧠 CodeLlama
+### What:
+→ It's a large language model (LLM) trained specially for coding and code generation.
+
+→ Think of it like ChatGPT but much better at understanding and writing code.
+
+### Why:
+→ Used to analyze code, suggest improvements, fix errors, generate code snippets, etc.
+
+## 🛠️ Ollama
+### What:
+→ It's a tool and server that makes it super easy to run LLMs locally on your machine (like CodeLlama).
+
+→ Instead of complicated setups, Ollama handles downloading, running, and serving models via simple APIs.
+
+### Why:
+→ You can use models like CodeLlama locally through API requests (like from Postman, your app, etc.)
+
+→ No need for OpenAI API or paid services.
+
+## 🔥 In short:
+- CodeLlama = Smart model for code understanding and generation.
+
+- Ollama = App that hosts CodeLlama (and other models) on your local machine easily.
+
+# ✅ Features Implemented:
+
+## Code Submission Endpoint
+
+- Accepts a code snippet (string code) and optionally the language (default: csharp).
+
+- Expects code input via API POST request.
+
+## AI-Based Code Analysis (Code Llama + Ollama)
+
+- Integrated with Ollama (via local Docker or app) running the codellama model.
+
+- Code is sent as a prompt to the local AI model, and a response with feedback is returned.
+
+- The service handles prompt formatting and parsing AI responses.
+
+## Response Model
+
+- Returns feedback in the form of:
+
+{
+  "feedback": "Descriptive suggestion or correction",
+  "isSuccess": true
+}
+
+## Dockerized Ollama Integration
+
+### CMD Commands:
+- Install docker and pull the Ollama dockerImage : docker pull ollama/ollama
+  
+- Run the Ollama container in background : docker run -d --name ollama -p 11434:11434 ollama/ollama
+  
+- Start the container: docker start ollama
+
+- Check running containers: docker ps
+
+- Pull the model: docker exec -it ollama ollama pull codellama (if not already done)
+
+- Run the model: docker exec -it ollama ollama run codellama
+
+- Verify with curl: curl http://localhost:11434/api/generate
+
+- Stop the container: docker stop ollama when you're done
+- 
+- Exposed at http://localhost:11434.
+
+## Internal Service Layer
+
+- Code submission is processed via CodeAnalysisService, which encapsulates the logic for sending the prompt to the AI model and formatting the response.
+
+# 🛠️ Tech Stack:
+- ASP.NET Core Web API
+
+- Ollama (AI runtime)
+
+- Code Llama (AI model)
+
+- Docker (for running Ollama container)
