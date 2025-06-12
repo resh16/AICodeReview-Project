@@ -1,0 +1,16 @@
+You are a professional code reviewer.
+Analyze if the "Improved Code" is better than the "Original Code" in terms of:
+- Readability
+- Best practices
+- Maintainability
+- Efficiency
+
+Give your answer in the format:
+Feedback: <your review>
+Is Improved: Yes/No
+
+Original Code:
+{original}
+
+Improved Code:
+{improved}
