@@ -1,9 +1,8 @@
 ﻿using CodeSubmissionService.Api.DTOs;
 using CodeSubmissionService.Api.IServices;
 using CodeSubmissionService.Api.Models;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Text.Json;
+
 
 namespace CodeSubmissionService.Api.Controllers
 {
@@ -18,7 +17,7 @@ namespace CodeSubmissionService.Api.Controllers
         }
 
 
-        [Authorize]
+        
         [HttpPost("codeSubmit")]
         public async Task<IActionResult> SubmitCode([FromBody] CodeRequestDTO request)
         {
@@ -26,7 +25,7 @@ namespace CodeSubmissionService.Api.Controllers
             if (string.IsNullOrWhiteSpace(request.Code))
                 return BadRequest("Code cannot be empty");
 
-            var result = _codeService.AnalyzeCodeAsync(new CodeRequest
+            var result = await _codeService.AnalyzeCodeAsync(new CodeRequest
             {
                 Code = request.Code,
                 Language = request.Language

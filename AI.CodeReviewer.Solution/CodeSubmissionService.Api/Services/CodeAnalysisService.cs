@@ -10,12 +10,18 @@ namespace CodeSubmissionService.Api.Services
     {
 
         private readonly HttpClient _httpClient;
+        private readonly IAIAnalysisServiceClient _aiAnalysisServiceClient;
+        
 
         // Inject HttpClient via constructor (used to send requests to Ollama API)
-        public CodeAnalysisService(HttpClient httpClient)
+        public CodeAnalysisService(HttpClient httpClient, IAIAnalysisServiceClient aIAnalysisServiceClient)
         {
             _httpClient = httpClient;
+            _aiAnalysisServiceClient = aIAnalysisServiceClient;
+
+            
         }
+
 
         /// <summary>
         /// This method sends the submitted code to the local Ollama model and returns the AI's response
@@ -26,7 +32,7 @@ namespace CodeSubmissionService.Api.Services
         public async Task<CodeAnalysisResponse> AnalyzeCodeAsync(CodeRequest codeRequest)
         {
             // Creating the prompt message to instruct the model what to do
-            var prompt = $"Analyze the following {codeRequest.Language} code for improvements, bugs, and best practices:\n\n{codeRequest.Code}";
+            var prompt = $"Analyze the following {codeRequest.Language} code for improvements, bugs, and best practices:\n\n{codeRequest.Code}, provide the revised code following the above improvements";
 
             // Creating the request body expected by Ollama API
             var requestBody = new
@@ -48,11 +54,29 @@ namespace CodeSubmissionService.Api.Services
             var json = JsonDocument.Parse(result);
             var feedback = json.RootElement.GetProperty("response").GetString();
 
-            return new CodeAnalysisResponse
+            if (codeRequest.IsImproved)
             {
-                Feedback = feedback,
-                IsSuccess = true
-            };
+                // Call AIAnalysisService
+
+                CodeAnalysisResponse finalResult = await _aiAnalysisServiceClient.SendCodeForAnalysisAsync(codeRequest.Code, feedback, codeRequest.Language);
+                return finalResult;
+
+            }
+            else
+            {
+                return new CodeAnalysisResponse
+                {
+                    Feedback = feedback,
+                    IsImproved = false,
+                    OriginalCode = codeRequest.Code,
+                    ImprovedCode = null // No improved code if not requested
+                };
+            }
+
+
+
+
+
         }
     }
     

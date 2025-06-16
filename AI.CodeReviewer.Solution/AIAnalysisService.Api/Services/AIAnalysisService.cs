@@ -9,11 +9,11 @@ namespace AIAnalysisService.Api.Services
     public class AICodeAnalysis: IAICodeAnalysis 
     {
         public HttpClient _httpClient;
-        public AICodeAnalysis(HttpClient httpClient)
+        public AICodeAnalysis(HttpClient httpClient) 
         {
             _httpClient = httpClient;
         }
-        public async Task<CodeHistoryEntry> AnalyzeCodeImprovement(CodeAnalysisRequest request)
+        public async Task<CodeAnalysisResponse> AnalyzeCodeImprovement(CodeAnalysisRequest request)
         {
             var template = await File.ReadAllTextAsync("Prompt/CodeImprovementPrompt.txt");
 
@@ -48,7 +48,7 @@ namespace AIAnalysisService.Api.Services
             //var isImproved = improvedCode.Length > originalCode.Length; // Dummy logic
             //var feedback = isImproved ? "The improved code seems more complete." : "No significant improvement found.";
 
-            return new CodeHistoryEntry
+            return new CodeAnalysisResponse
             {
                 OriginalCode = request.OriginalCode,
                 ImprovedCode = request.ImprovedCode,
