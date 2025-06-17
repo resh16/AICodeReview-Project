@@ -209,3 +209,73 @@ This microservice allows users to submit code and receive automated analysis and
 - Code Llama (AI model)
 
 - Docker (for running Ollama container)
+
+
+# AIAnalysisService.API
+
+## 📌 Overview
+
+The `AIAnalysisService.API` is a microservice within the AI Code Reviewer ecosystem. It is responsible for analyzing the **improvements made to code submissions** and providing **intelligent feedback** using a locally hosted LLM model (CodeLlama via Ollama). This service works after a user refines their code based on suggestions and chooses to validate those improvements.
+
+---
+
+## 🎯 Purpose
+
+- Validate if the improved code version is better than the original.
+- Offer meaningful AI-driven feedback highlighting improvements or areas for enhancement.
+- Optionally track analysis history (e.g., using MongoDB in future phases).
+
+---
+
+## 🏗️ Implementation Highlights
+
+- **Receives**: Original code and improved version from CodeSubmissionService.
+- **Processes**: Generates a dynamic prompt using a `.txt` template.
+- **Sends**: POST request to local Ollama server (running CodeLlama model).
+- **Parses**: AI response to determine if the improvement is valid and meaningful.
+- **Returns**: Feedback and status (`isImproved`) to the caller.
+
+---
+
+## ⚙️ Tech Stack
+
+| Tech               | Purpose                                   |
+|--------------------|-------------------------------------------|
+| ASP.NETCore Web API| Core service framework                    |
+| Ollama + CodeLlama | Local AI model for code understanding     |
+| HttpClient         | Inter-service & AI model communication    |
+| .NET 8             | Target framework                          |
+| Swagger/OpenAPI    | API documentation and testing             |
+| File I/O (Prompt)  | Template-based dynamic prompt generation  |
+
+---
+
+## 🧩 Key Components
+
+- `CodeAnalysisRequest.cs` – DTO for input containing original and improved code.
+- `CodeAnalysisResponse.cs` – DTO representing analysis feedback and result.
+- `AIAnalysisService - AnalyzeCodeImprovement()` – Core method calling Ollama and parsing response.
+- `Prompt/CodeImprovementPrompt.txt` – Template file for creating the LLM prompt.
+- `AIAnalysisController.cs` – Endpoint to trigger the analysis.
+
+---
+
+## 🚀 Future Enhancements
+
+- Add **MongoDB** to persist code analysis history.
+- Enable **user identification** to associate feedback records.
+- Visualize analysis history in the UI.
+- Integrate advanced diffing or line-by-line comparison.
+
+---
+
+## 📬 API Endpoint
+
+- `POST /api/Analysis`
+  - **Input**: `originalCode`, `improvedCode`, `language`
+  - **Output**: orginalCode, improvedCode, timestamp, feedback,IsImproved
+
+---
+
+> 💡 This service is designed to be modular and replaceable with more advanced AI models or engines as needed in future versions.
+
